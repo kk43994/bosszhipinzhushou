@@ -1,0 +1,388 @@
+/**
+ * AI分析模块 - 候选人智能评分与回复生成
+ * 支持 Claude 和 Gemini API
+ */
+
+class AIAnalyzer {
+  constructor() {
+    this.config = window.configManager;
+  }
+
+  /**
+   * 分析候选人匹配度
+   */
+  async analyzeCandidate(candidateInfo) {
+    try {
+      const criteria = this.config.get('filterCriteria');
+      const prompt = this.buildAnalysisPrompt(candidateInfo, criteria);
+
+      const result = await this.callAI(prompt);
+
+      // 解析AI返回的评分
+      const analysis = this.parseAnalysisResult(result);
+
+      // 保存分析结果
+      await storageManager.saveAnalysis(candidateInfo.id, analysis);
+
+      return analysis;
+    } catch (error) {
+      console.error('AI分析失败:', error);
+      return this.fallbackAnalysis(candidateInfo);
+    }
+  }
+
+  /**
+   * 构建分析提示词
+   */
+  buildAnalysisPrompt(candidate, criteria) {
+    return `你是一个专业的招聘助手，请分析以下候选人是否符合岗位要求。
+
+## 候选人信息
+姓名: ${candidate.name || '未知'}
+应聘职位: ${candidate.position || '未知'}
+学历: ${candidate.education?.degree || '未知'} - ${candidate.education?.school || ''}
+专业: ${candidate.education?.major || '未知'}
+
+工作经验:
+${candidate.experience?.map(exp => `- ${exp.period} ${exp.company} ${exp.position}`).join('\n') || '无'}
+
+技能标签: ${candidate.skills?.join(', ') || '无'}
+
+期望薪资: ${candidate.salary || '未知'}
+
+## 岗位要求
+- 最低学历: ${criteria.minEducation}
+- 最低工作年限: ${criteria.minExperience}年
+- 必备技能: ${criteria.requiredSkills.join(', ') || '无特殊要求'}
+- 最高期望薪资: ${criteria.maxSalaryExpectation}元
+- 排除关键词: ${criteria.excludeKeywords.join(', ')}
+
+## 请按以下JSON格式返回分析结果:
+{
+  "matchScore": 85,           // 匹配度分数 0-100
+  "level": "high",            // 评级: high/medium/low
+  "pros": ["优点1", "优点2"],   // 亮点
+  "cons": ["不足1"],           // 不足
+  "recommendation": "推荐理由",
+  "suggestedAction": "建议操作: 约面试/继续沟通/不合适"
+}`;
+  }
+
+  /**
+   * 调用AI API - 支持Claude和Gemini
+   */
+  async callAI(prompt) {
+    const apiKey = this.config.get('apiKey');
+    if (!apiKey) {
+      throw new Error('未配置API密钥');
+    }
+
+    const provider = this.config.get('aiProvider') || 'gemini';
+
+    if (provider === 'gemini') {
+      return await this.callGemini(prompt, apiKey);
+    } else if (provider === 'claude') {
+      return await this.callClaude(prompt, apiKey);
+    } else {
+      throw new Error('不支持的AI提供商: ' + provider);
+    }
+  }
+
+  /**
+   * 调用Gemini API
+   */
+  async callGemini(prompt, apiKey) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1024
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Gemini API调用失败: ${response.status} - ${error}`);
+    }
+
+    const data = await response.json();
+
+    // 提取生成的文本
+    if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+      return data.candidates[0].content.parts[0].text;
+    } else {
+      throw new Error('Gemini API返回格式异常');
+    }
+  }
+
+  /**
+   * 调用Claude API
+   */
+  async callClaude(prompt, apiKey) {
+    const apiConfig = CONFIG.API.claude;
+
+    const response = await fetch(apiConfig.endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: apiConfig.model,
+        max_tokens: apiConfig.maxTokens,
+        messages: [{
+          role: 'user',
+          content: prompt
+        }]
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Claude API调用失败: ${response.status} - ${error}`);
+    }
+
+    const data = await response.json();
+    return data.content[0].text;
+  }
+
+  /**
+   * 解析AI返回结果
+   */
+  parseAnalysisResult(aiResponse) {
+    try {
+      // 尝试提取JSON
+      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
+
+      // 如果没有JSON，返回默认结构
+      return {
+        matchScore: 50,
+        level: 'medium',
+        pros: [],
+        cons: [],
+        recommendation: aiResponse,
+        suggestedAction: '需要进一步评估'
+      };
+    } catch (error) {
+      console.error('解析AI结果失败:', error);
+      return this.getDefaultAnalysis();
+    }
+  }
+
+  /**
+   * 降级分析（不使用AI）
+   */
+  fallbackAnalysis(candidate) {
+    const criteria = this.config.get('filterCriteria');
+    let score = 50; // 基础分
+
+    // 学历评分
+    const educationLevels = ['高中', '中专', '大专', '本科', '硕士', '博士'];
+    const candidateEduLevel = educationLevels.indexOf(candidate.education?.degree || '');
+    const requiredEduLevel = educationLevels.indexOf(criteria.minEducation);
+    if (candidateEduLevel >= requiredEduLevel) {
+      score += 15;
+    }
+
+    // 经验评分
+    const yearsOfExp = this.calculateExperience(candidate.experience);
+    if (yearsOfExp >= criteria.minExperience) {
+      score += 20;
+    }
+
+    // 技能匹配
+    const matchedSkills = candidate.skills?.filter(skill =>
+      criteria.requiredSkills.some(req => skill.includes(req))
+    );
+    if (matchedSkills && matchedSkills.length > 0) {
+      score += matchedSkills.length * 5;
+    }
+
+    // 排除关键词检查
+    const hasExcluded = criteria.excludeKeywords.some(keyword =>
+      JSON.stringify(candidate).includes(keyword)
+    );
+    if (hasExcluded) {
+      score -= 30;
+    }
+
+    score = Math.max(0, Math.min(100, score));
+
+    return {
+      matchScore: score,
+      level: score >= 80 ? 'high' : score >= 60 ? 'medium' : 'low',
+      pros: matchedSkills || [],
+      cons: hasExcluded ? ['包含排除关键词'] : [],
+      recommendation: `匹配度: ${score}分`,
+      suggestedAction: score >= 80 ? '建议约面试' : score >= 60 ? '可继续沟通' : '不推荐'
+    };
+  }
+
+  /**
+   * 计算工作年限
+   */
+  calculateExperience(experiences) {
+    if (!experiences || experiences.length === 0) return 0;
+
+    let totalMonths = 0;
+    experiences.forEach(exp => {
+      const match = exp.period?.match(/(\d{4})\.(\d{2})-(\d{4})\.(\d{2})/);
+      if (match) {
+        const startYear = parseInt(match[1]);
+        const startMonth = parseInt(match[2]);
+        const endYear = parseInt(match[3]);
+        const endMonth = parseInt(match[4]);
+
+        totalMonths += (endYear - startYear) * 12 + (endMonth - startMonth);
+      }
+    });
+
+    return Math.floor(totalMonths / 12);
+  }
+
+  /**
+   * 生成智能回复
+   */
+  async generateReply(candidateInfo, messageContext) {
+    try {
+      const prompt = this.buildReplyPrompt(candidateInfo, messageContext);
+      const aiResponse = await this.callAI(prompt);
+
+      return this.parseReplyOptions(aiResponse);
+    } catch (error) {
+      console.error('生成回复失败:', error);
+      return this.getDefaultReplies(messageContext);
+    }
+  }
+
+  /**
+   * 构建回复生成提示词
+   */
+  buildReplyPrompt(candidate, context) {
+    return `你是一位友好专业的招聘PM，候选人${candidate.name}刚发来消息，请生成3种不同风格的回复选项。
+
+## 候选人信息
+姓名: ${candidate.name}
+应聘职位: ${candidate.position}
+匹配度: ${candidate.analysis?.matchScore || '未知'}分
+
+## 对方消息
+"${context.lastMessage}"
+
+## 要求
+1. 生成3个回复选项：正式、友好、简洁
+2. 根据对方问题内容调整回复
+3. 如果是询问薪资，可以建议面聊详谈
+4. 如果是询问岗位，简要介绍职责
+5. 保持专业且热情的语气
+
+请按以下JSON格式返回:
+{
+  "options": [
+    {"style": "formal", "text": "正式回复内容"},
+    {"style": "friendly", "text": "友好回复内容"},
+    {"style": "brief", "text": "简洁回复内容"}
+  ]
+}`;
+  }
+
+  /**
+   * 解析回复选项
+   */
+  parseReplyOptions(aiResponse) {
+    try {
+      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return parsed.options || [];
+      }
+      return this.getDefaultReplies({});
+    } catch (error) {
+      return this.getDefaultReplies({});
+    }
+  }
+
+  /**
+   * 默认回复选项
+   */
+  getDefaultReplies(context) {
+    return [
+      {
+        style: 'formal',
+        text: '您好！感谢您对我们岗位的关注，请问有什么可以帮您的吗？'
+      },
+      {
+        style: 'friendly',
+        text: 'Hi！看到您的简历了，很不错呢！有什么想了解的随时问我~'
+      },
+      {
+        style: 'brief',
+        text: '您好！我们可以进一步沟通一下。'
+      }
+    ];
+  }
+
+  /**
+   * 生成打招呼语
+   */
+  async generateGreeting(candidateInfo) {
+    try {
+      const prompt = `你是招聘PM，发现了一位匹配的候选人，请生成一条吸引人的招呼语。
+
+## 候选人信息
+姓名: ${candidateInfo.name}
+职位: ${candidateInfo.position}
+工作经验: ${candidateInfo.experience?.map(e => e.position).join(', ') || '应届生'}
+匹配度: ${candidateInfo.analysis?.matchScore}分
+
+## 要求
+1. 50字以内
+2. 提到候选人的亮点
+3. 简要介绍岗位吸引力
+4. 友好专业的语气
+
+只返回招呼语文本即可，不需要JSON格式。`;
+
+      const greeting = await this.callAI(prompt);
+      return greeting.trim();
+    } catch (error) {
+      console.error('生成招呼语失败:', error);
+      return `您好！看到您的简历与我们的${candidateInfo.position}岗位高度匹配，欢迎进一步沟通。`;
+    }
+  }
+
+  /**
+   * 默认分析结果
+   */
+  getDefaultAnalysis() {
+    return {
+      matchScore: 50,
+      level: 'medium',
+      pros: [],
+      cons: [],
+      recommendation: '待进一步评估',
+      suggestedAction: '需要人工判断'
+    };
+  }
+}
+
+// 导出
+if (typeof window !== 'undefined') {
+  window.aiAnalyzer = new AIAnalyzer();
+}

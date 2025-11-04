@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boss直聘智能助手</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 头部 -->
+    <header class="header">
+      <div class="logo">🤖 Boss智能助手</div>
+      <div class="version">v1.0.0</div>
+    </header>
+
+    <!-- 状态指示 -->
+    <div class="status-section">
+      <div class="status-item">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">已关闭</span>
+        <label class="switch" style="margin-left: auto;">
+          <input type="checkbox" id="pluginEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="stats">
+        <div class="stat-item">
+          <div class="stat-value" id="candidatesCount">0</div>
+          <div class="stat-label">牛人分析</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="repliesCount">0</div>
+          <div class="stat-label">智能回复</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 模式选择 -->
+    <div class="section">
+      <h3>运行模式</h3>
+      <div class="mode-selector">
+        <label class="mode-option">
+          <input type="radio" name="mode" value="safe" checked>
+          <div class="mode-card">
+            <div class="mode-icon">🛡️</div>
+            <div class="mode-title">安全模式</div>
+            <div class="mode-desc">AI建议 + 人工确认</div>
+            <div class="mode-badge recommended">推荐</div>
+          </div>
+        </label>
+        <label class="mode-option">
+          <input type="radio" name="mode" value="auto">
+          <div class="mode-card">
+            <div class="mode-icon">⚡</div>
+            <div class="mode-title">自动模式</div>
+            <div class="mode-desc">完全自动化</div>
+            <div class="mode-badge warning">慎用</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- AI设置 -->
+    <div class="section">
+      <h3>AI分析设置</h3>
+      <div class="setting-item">
+        <label class="switch">
+          <input type="checkbox" id="useAI">
+          <span class="slider"></span>
+        </label>
+        <div class="setting-label">
+          <div>使用AI智能分析</div>
+          <div class="setting-desc">需要配置API密钥</div>
+        </div>
+      </div>
+
+      <div id="apiSettings" style="display: none;">
+        <!-- AI提供商选择 -->
+        <div class="input-group">
+          <label>AI提供商</label>
+          <select id="aiProvider" style="width: 100%; padding: 8px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
+            <option value="gemini">Google Gemini</option>
+            <option value="zhipu">智谱AI GLM-4</option>
+          </select>
+          <div style="font-size: 11px; color: #999; margin-top: 4px;">
+            💡 智谱AI：国内可直接访问，免费500万token/年
+          </div>
+        </div>
+
+        <!-- Gemini API Key -->
+        <div class="input-group api-provider-config" id="geminiConfig">
+          <label>Gemini API Key</label>
+          <input type="password" id="geminiApiKey" placeholder="AIza开头的密钥...">
+          <div class="api-hint" style="font-size: 11px; color: #999; margin-top: 4px; line-height: 1.6;">
+            💡 获取API Key: 访问 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #667eea;">Google AI Studio</a><br>
+            🌏 国内用户需要科学上网访问API
+          </div>
+        </div>
+
+        <!-- 智谱AI API Key -->
+        <div class="input-group api-provider-config" id="zhipuConfig" style="display: none;">
+          <label>智谱AI API Key</label>
+          <input type="password" id="zhipuApiKey" placeholder="输入API Key...">
+          <div class="api-hint" style="font-size: 11px; color: #999; margin-top: 4px; line-height: 1.6;">
+            💡 获取API Key: 访问 <a href="https://open.bigmodel.cn/usercenter/apikeys" target="_blank" style="color: #667eea;">智谱AI开放平台</a><br>
+            🎁 注册送100万token，实名认证再送400万token<br>
+            ✅ 国内直接访问，无需科学上网
+          </div>
+        </div>
+
+        <button id="testApi" class="btn-secondary" style="margin-top: 8px;">测试连接</button>
+      </div>
+    </div>
+
+    <!-- 岗位需求配置（全新优化版本） -->
+    <div class="section">
+      <h3>📋 岗位需求配置 <span class="badge-new">全新</span></h3>
+
+      <!-- 岗位选择和管理 -->
+      <div class="job-selector">
+        <div class="input-group">
+          <label>当前岗位</label>
+          <div style="display: flex; gap: 8px;">
+            <select id="jobConfigSelect" style="flex: 1;">
+              <option value="">加载中...</option>
+            </select>
+            <button id="newJobConfig" class="btn-secondary" title="新建岗位配置">➕</button>
+            <button id="deleteJobConfig" class="btn-secondary" title="删除当前配置">🗑️</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 配置模式切换 -->
+      <div class="config-mode-tabs">
+        <button class="tab-btn active" data-mode="quick">🚀 快速模式</button>
+        <button class="tab-btn" data-mode="structured">📝 结构化配置</button>
+      </div>
+
+      <!-- 快速模式：AI智能解析 -->
+      <div class="config-mode" id="quickMode">
+        <div class="quick-parse-area">
+          <label>粘贴岗位需求文本</label>
+          <textarea id="jobRequirementsRaw" rows="8" placeholder="直接粘贴Boss直聘岗位描述或任意格式的招聘需求，AI会自动解析：
+
+示例1：
+职位：短视频运营
+学历：本科
+经验：1年以上
+薪资：8-12K
+要求：熟练PR、剪映，有抖音运营经验
+
+示例2：
+招聘电商美工，会PS、AI，有淘宝经验优先，大专以上，温州地区
+
+支持从职位管理页面一键提取 👉"></textarea>
+
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button id="aiParseBtn" class="btn-primary" style="flex: 1;">
+              🤖 AI智能解析
+            </button>
+            <button id="extractFromJobPage" class="btn-secondary" title="从当前打开的职位详情页提取">
+              📄 提取职位
+            </button>
+          </div>
+
+          <div id="parseStatus" class="parse-status" style="margin-top: 8px; display: none;">
+            <div class="loading-spinner"></div>
+            <span>正在解析...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 结构化配置模式 -->
+      <div class="config-mode" id="structuredMode" style="display: none;">
+        <!-- 基础要求 -->
+        <div class="config-section">
+          <h4>基础要求</h4>
+          <div class="form-grid">
+            <div class="input-group">
+              <label>最低学历</label>
+              <select id="educationLevel">
+                <option value="">不限</option>
+                <option value="高中">高中</option>
+                <option value="大专">大专</option>
+                <option value="本科">本科</option>
+                <option value="硕士">硕士</option>
+                <option value="博士">博士</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>最低工作年限</label>
+              <input type="number" id="minExperience" min="0" placeholder="年" style="width: 100%;">
+            </div>
+            <div class="input-group">
+              <label>薪资范围（月薪）</label>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="number" id="salaryMin" placeholder="最低" style="flex: 1;">
+                <span>-</span>
+                <input type="number" id="salaryMax" placeholder="最高" style="flex: 1;">
+                <span>元</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 必备技能 -->
+        <div class="config-section">
+          <h4>必备技能 <span style="font-size: 12px; color: #999;">(必须匹配)</span></h4>
+          <div id="requiredSkillsList" class="skills-list">
+            <!-- 动态生成技能标签 -->
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <input type="text" id="newRequiredSkill" placeholder="输入技能名称，如：PR、Python" style="flex: 1;">
+            <button id="addRequiredSkill" class="btn-secondary">添加</button>
+          </div>
+        </div>
+
+        <!-- 加分技能 -->
+        <div class="config-section">
+          <h4>加分技能 <span style="font-size: 12px; color: #999;">(有更好)</span></h4>
+          <div id="bonusSkillsList" class="skills-list">
+            <!-- 动态生成技能标签 -->
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <input type="text" id="newBonusSkill" placeholder="输入技能名称" style="flex: 1;">
+            <button id="addBonusSkill" class="btn-secondary">添加</button>
+          </div>
+        </div>
+
+        <!-- 排除关键词 -->
+        <div class="config-section">
+          <h4>排除关键词 <span style="font-size: 12px; color: #999;">(自动过滤)</span></h4>
+          <div id="excludeKeywordsList" class="skills-list">
+            <!-- 动态生成关键词标签 -->
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <input type="text" id="newExcludeKeyword" placeholder="如：兼职、实习" style="flex: 1;">
+            <button id="addExcludeKeyword" class="btn-secondary">添加</button>
+          </div>
+        </div>
+
+        <!-- 工作描述 -->
+        <div class="config-section">
+          <h4>工作内容描述 <span style="font-size: 12px; color: #999;">(用于生成招呼语)</span></h4>
+          <textarea id="jobDescription" rows="3" placeholder="简短描述工作内容，例如：负责短视频内容的拍摄、剪辑和运营工作"></textarea>
+        </div>
+      </div>
+
+      <!-- 保存按钮 -->
+      <div style="margin-top: 16px; display: flex; gap: 8px;">
+        <button id="saveJobConfig" class="btn-primary" style="flex: 1;">💾 保存配置</button>
+        <button id="testJobConfig" class="btn-secondary">🧪 测试匹配</button>
+      </div>
+
+      <!-- 导入/导出 -->
+      <div style="margin-top: 8px; display: flex; gap: 8px; font-size: 12px;">
+        <button id="exportConfigs" class="btn-text">📤 导出配置</button>
+        <button id="importConfigs" class="btn-text">📥 导入配置</button>
+      </div>
+    </div>
+
+    <!-- 面试地址管理（新增2025-11-04） -->
+    <div class="section">
+      <h3>📍 面试地址管理 <span class="badge-new">新增</span></h3>
+      <div class="setting-desc" style="margin-bottom: 12px; color: #666; font-size: 13px;">
+        在沟通页面一键发送预设的面试邀请和地址信息
+      </div>
+
+      <!-- 模板列表预览 -->
+      <div id="interviewTemplatePreview" class="template-preview-box">
+        <div class="loading-text">加载中...</div>
+      </div>
+
+      <!-- 操作按钮 -->
+      <div style="margin-top: 12px; display: flex; gap: 8px;">
+        <button id="manageInterviewTemplates" class="btn-primary" style="flex: 1;">
+          ⚙️ 管理模板
+        </button>
+        <button id="addInterviewTemplate" class="btn-secondary">
+          ➕ 新建
+        </button>
+      </div>
+
+      <div class="hint-box" style="margin-top: 12px; padding: 10px; background: #f8f9ff; border-radius: 8px; font-size: 12px; color: #667eea;">
+        💡 提示：在沟通页面可点击"📍 发送面试地址"按钮快速使用
+      </div>
+    </div>
+
+    <!-- 功能开关 -->
+    <div class="section">
+      <h3>功能开关</h3>
+      <div class="setting-item">
+        <label class="switch">
+          <input type="checkbox" id="autoReplyEnabled" checked>
+          <span class="slider"></span>
+        </label>
+        <div class="setting-label">
+          <div>智能回复助手</div>
+          <div class="setting-desc">自动生成回复建议</div>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <label class="switch">
+          <input type="checkbox" id="autoGreetEnabled" checked>
+          <span class="slider"></span>
+        </label>
+        <div class="setting-label">
+          <div>打招呼助手</div>
+          <div class="setting-desc">推荐高匹配候选人</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="actions">
+      <button id="saveBtn" class="btn-primary">保存设置</button>
+      <button id="refreshBtn" class="btn-secondary">刷新分析</button>
+    </div>
+
+    <!-- 底部链接 -->
+    <footer class="footer">
+      <a href="#" id="helpLink">使用帮助</a>
+      <span>·</span>
+      <a href="#" id="feedbackLink">反馈建议</a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+  <script src="popup-job-config.js"></script>
+  <script src="popup-interview-template.js"></script>
+</body>
+</html>

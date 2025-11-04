@@ -1,0 +1,1228 @@
+/**
+ * 注入到Boss直聘页面的样式
+ */
+
+/* 匹配度徽章 */
+.boss-match-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 999;
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* 打招呼建议按钮 */
+.boss-greet-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  cursor: pointer;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+}
+
+.boss-greet-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+/* 回复建议面板 */
+.boss-reply-suggestions {
+  position: relative;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border: 2px solid #667eea;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+.boss-suggestion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  color: #667eea;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.boss-close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.boss-close-btn:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.boss-suggestion-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.boss-loading {
+  text-align: center;
+  color: #999;
+  padding: 20px;
+}
+
+.boss-suggestion-item {
+  background: #f8f9ff;
+  border-radius: 8px;
+  padding: 12px;
+  border-left: 3px solid #667eea;
+  transition: all 0.2s;
+}
+
+.boss-suggestion-item:hover {
+  background: #f0f2ff;
+  transform: translateX(2px);
+}
+
+.boss-suggestion-label {
+  font-size: 12px;
+  color: #667eea;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.boss-suggestion-text {
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.boss-use-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 16px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.boss-use-btn:hover {
+  background: #5568d3;
+  transform: scale(1.05);
+}
+
+/* 打招呼面板 */
+.boss-greet-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.boss-greet-panel > div {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease-out;
+}
+
+.boss-greet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #f0f0f0;
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+}
+
+.boss-greet-body {
+  padding: 20px;
+}
+
+.boss-greet-info {
+  background: #f8f9ff;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.boss-greet-info p {
+  margin: 8px 0;
+  color: #666;
+}
+
+.boss-greet-divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 16px 0;
+}
+
+.boss-greet-suggestions strong {
+  color: #667eea;
+}
+
+.boss-greet-options {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.boss-greet-option {
+  background: #fff;
+  border: 2px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.2s;
+}
+
+.boss-greet-option:hover {
+  border-color: #667eea;
+  background: #f8f9ff;
+}
+
+.boss-greet-text {
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.boss-use-greet-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 6px 20px;
+  border-radius: 16px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.boss-use-greet-btn:hover {
+  background: #5568d3;
+  transform: scale(1.05);
+}
+
+/* Toast提示 */
+.boss-toast,
+.boss-welcome-toast,
+.boss-error-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 10001;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s ease;
+}
+
+.boss-toast.show,
+.boss-welcome-toast.show,
+.boss-error-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.boss-welcome-toast {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  min-width: 280px;
+}
+
+.boss-error-toast {
+  background: #ff4d4f;
+  color: white;
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .boss-greet-panel > div {
+    width: 95%;
+    margin: 20px;
+  }
+
+  .boss-reply-suggestions {
+    padding: 12px;
+  }
+}
+
+/* ========== 推荐牛人智能分析面板 ========== */
+.boss-dashboard {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 900px;
+  max-height: 700px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  z-index: 999999;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.boss-dashboard.minimized {
+  width: 300px;
+  height: auto;
+}
+
+.boss-dashboard.minimized .dashboard-stats,
+.boss-dashboard.minimized .dashboard-actions,
+.boss-dashboard.minimized .dashboard-table-wrapper,
+.boss-dashboard.minimized .dashboard-footer {
+  display: none;
+}
+
+/* 面板头部 */
+.dashboard-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px 20px;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: move;
+  user-select: none;
+}
+
+.dashboard-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.title-icon {
+  font-size: 20px;
+}
+
+.dashboard-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.dashboard-controls .btn-minimize,
+.dashboard-controls .btn-close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: all 0.2s;
+}
+
+.dashboard-controls .btn-minimize:hover,
+.dashboard-controls .btn-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* 统计区域 */
+.dashboard-stats {
+  display: flex;
+  padding: 16px 20px;
+  gap: 16px;
+  background: #f8f9ff;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.stat-box {
+  flex: 1;
+  text-align: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  border: 2px solid #e8e8e8;
+}
+
+.stat-box.highlight {
+  border-color: #52c41a;
+  background: #f6ffed;
+}
+
+.stat-box.success {
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 操作按钮区域 */
+.dashboard-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.btn-action {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-action span {
+  font-size: 16px;
+}
+
+.btn-refresh {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.btn-refresh:hover {
+  background: #e0e0e0;
+}
+
+.btn-action.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-action.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-action.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-action.btn-secondary {
+  background: white;
+  color: #667eea;
+  border: 1px solid #667eea;
+}
+
+.btn-action.btn-secondary:hover {
+  background: #f8f9ff;
+}
+
+/* 表格区域 */
+.dashboard-table-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.dashboard-table thead {
+  position: sticky;
+  top: 0;
+  background: #fafafa;
+  z-index: 1;
+}
+
+.dashboard-table th {
+  padding: 12px 8px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #e8e8e8;
+}
+
+.dashboard-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #666;
+}
+
+.dashboard-table tbody tr {
+  transition: background 0.2s;
+}
+
+.dashboard-table tbody tr:hover {
+  background: #f8f9ff;
+}
+
+.dashboard-table tbody tr.row-highlight {
+  background: #fff7e6;
+}
+
+.dashboard-table tbody tr.row-highlight:hover {
+  background: #ffe7ba;
+}
+
+/* 单元格样式 */
+.dashboard-table .rank {
+  font-weight: bold;
+  color: #999;
+}
+
+.dashboard-table .name {
+  font-weight: 600;
+  color: #333;
+}
+
+.dashboard-table .score {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.score-excellent {
+  color: #52c41a;
+}
+
+.score-good {
+  color: #1890ff;
+}
+
+.score-medium {
+  color: #faad14;
+}
+
+.score-low {
+  color: #999;
+}
+
+.dashboard-table .advantage {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: help;
+}
+
+.greet-status {
+  font-weight: 500;
+}
+
+.status-greeted {
+  color: #1890ff;
+}
+
+.status-recommend {
+  color: #52c41a;
+}
+
+.status-normal {
+  color: #999;
+}
+
+.dashboard-table .actions {
+  text-align: center;
+}
+
+.btn-greet {
+  padding: 4px 12px;
+  background: #52c41a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.btn-greet:hover {
+  background: #389e0d;
+  transform: scale(1.05);
+}
+
+.text-muted {
+  color: #999;
+  font-size: 12px;
+}
+
+/* 底部信息 */
+.dashboard-footer {
+  padding: 12px 20px;
+  background: #fafafa;
+  border-top: 1px solid #e8e8e8;
+  border-radius: 0 0 12px 12px;
+}
+
+.footer-info {
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+}
+
+/* Dashboard专用Toast提示 */
+.boss-dashboard-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 9999999;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s;
+  max-width: 400px;
+}
+
+.boss-dashboard-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========== 一键发送面试地址功能 ========== */
+
+/* 面试地址按钮 */
+.boss-interview-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
+  transition: all 0.3s ease;
+  z-index: 999;
+}
+
+.boss-interview-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.5);
+}
+
+.boss-interview-btn .btn-icon {
+  font-size: 16px;
+}
+
+/* 模板选择器面板 */
+.boss-interview-selector {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.interview-selector-content {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(15px);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 70vh;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+.selector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.selector-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+  font-weight: 600;
+}
+
+.selector-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #999;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.selector-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+.selector-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px;
+}
+
+.template-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.template-item:hover {
+  border-color: #52c41a;
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.2);
+}
+
+.template-icon {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.template-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.template-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.template-address {
+  font-size: 13px;
+  color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.template-action {
+  font-size: 20px;
+  color: #52c41a;
+  transition: transform 0.3s;
+}
+
+.template-item:hover .template-action {
+  transform: translateX(4px);
+}
+
+.no-templates {
+  text-align: center;
+  color: #999;
+  padding: 40px 20px;
+  font-size: 14px;
+}
+
+.selector-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.btn-manage {
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s;
+}
+
+.btn-manage:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* 模板管理器面板 */
+.boss-interview-manager {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.interview-manager-content {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(15px);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+.manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.manager-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+  font-weight: 600;
+}
+
+.manager-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #999;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.manager-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+.manager-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px;
+}
+
+.manager-template-item {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  transition: all 0.2s;
+}
+
+.manager-template-item:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.template-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.template-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.default-badge {
+  background: linear-gradient(135deg, #faad14 0%, #fa8c16 100%);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.template-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.template-actions button {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.template-actions button:hover {
+  background: white;
+  transform: scale(1.1);
+}
+
+.btn-set-default:hover {
+  background: #fff7e6 !important;
+  border-color: #faad14 !important;
+}
+
+.btn-edit-template:hover {
+  background: #e6f7ff !important;
+  border-color: #1890ff !important;
+}
+
+.btn-delete-template:hover {
+  background: #fff2f0 !important;
+  border-color: #ff4d4f !important;
+}
+
+.template-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.preview-field {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.preview-field strong {
+  color: #333;
+  font-weight: 500;
+}
+
+.manager-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.btn-add-template {
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s;
+}
+
+.btn-add-template:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.4);
+}
+
+/* 模板编辑器面板 */
+.boss-interview-editor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.interview-editor-content {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(15px);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 85vh;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.editor-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+  font-weight: 600;
+}
+
+.editor-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #999;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.editor-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+.editor-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-size: 14px;
+  color: #333;
+  background: rgba(255, 255, 255, 0.8);
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.editor-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-cancel,
+.btn-save {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-cancel {
+  background: rgba(0, 0, 0, 0.05);
+  color: #666;
+}
+
+.btn-cancel:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* 面试地址Toast提示 */
+.boss-interview-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(82, 196, 26, 0.95);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 9999999;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s;
+  box-shadow: 0 4px 16px rgba(82, 196, 26, 0.3);
+}
+
+.boss-interview-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}

@@ -1,0 +1,43 @@
+# 截图和临时文件
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+
+# 旧的测试目录
+boss-recruiter-assistant/
+boss-recruiter-system/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node modules (如果将来使用)
+node_modules/
+package-lock.json
+
+# 日志文件
+*.log
+
+# 私密配置
+*.env
+.env.local
+secrets/
+
+# 构建输出
+dist/
+build/
+*.zip
+
+# Chrome插件打包文件
+*.crx
+*.pem

@@ -1,0 +1,64 @@
+{
+  "manifest_version": 3,
+  "name": "Boss直聘智能助手",
+  "version": "1.0.0",
+  "description": "AI驱动的招聘筛选与自动接待工具 - 支持安全模式和自动模式",
+  "permissions": [
+    "storage",
+    "tabs",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://www.zhipin.com/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.zhipin.com/*"],
+      "js": [
+        "utils/config.js",
+        "utils/storage.js",
+        "utils/rate-limiter.js",
+        "modules/job-config-manager.js",
+        "modules/extractor.js",
+        "modules/analyzer.js",
+        "modules/anti-detection.js",
+        "modules/auto-reply.js",
+        "modules/auto-greet.js",
+        "modules/interview-sender.js",
+        "modules/candidate-scorer.js",
+        "modules/candidate-list.js",
+        "modules/debug-panel.js",
+        "modules/recommend-scorer.js",
+        "modules/recommend-greet.js",
+        "modules/recommend-dashboard.js",
+        "content.js"
+      ],
+      "css": ["styles/inject.css"],
+      "run_at": "document_end",
+      "all_frames": true
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon.svg",
+      "48": "icons/icon.svg",
+      "128": "icons/icon.svg"
+    }
+  },
+  "icons": {
+    "16": "icons/icon.svg",
+    "48": "icons/icon.svg",
+    "128": "icons/icon.svg"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["styles/*.css", "icons/*"],
+      "matches": ["https://www.zhipin.com/*"]
+    }
+  ]
+}

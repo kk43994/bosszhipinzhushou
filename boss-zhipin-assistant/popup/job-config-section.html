@@ -1,0 +1,301 @@
+<!-- 岗位需求配置模块（优化后的版本） -->
+<div class="section">
+  <h3>📋 岗位需求配置 <span class="badge-new">全新</span></h3>
+
+  <!-- 岗位选择和管理 -->
+  <div class="job-selector">
+    <div class="input-group">
+      <label>当前岗位</label>
+      <div style="display: flex; gap: 8px;">
+        <select id="jobConfigSelect" style="flex: 1;">
+          <option value="">加载中...</option>
+        </select>
+        <button id="newJobConfig" class="btn-secondary" title="新建岗位配置">➕</button>
+        <button id="deleteJobConfig" class="btn-secondary" title="删除当前配置">🗑️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 配置模式切换 -->
+  <div class="config-mode-tabs">
+    <button class="tab-btn active" data-mode="quick">🚀 快速模式</button>
+    <button class="tab-btn" data-mode="structured">📝 结构化配置</button>
+  </div>
+
+  <!-- 快速模式：AI智能解析 -->
+  <div class="config-mode" id="quickMode">
+    <div class="quick-parse-area">
+      <label>粘贴岗位需求文本</label>
+      <textarea id="jobRequirementsRaw" rows="8" placeholder="直接粘贴Boss直聘岗位描述或任意格式的招聘需求，AI会自动解析：
+
+示例1：
+职位：短视频运营
+学历：本科
+经验：1年以上
+薪资：8-12K
+要求：熟练PR、剪映，有抖音运营经验
+
+示例2：
+招聘电商美工，会PS、AI，有淘宝经验优先，大专以上，温州地区
+
+支持从职位管理页面一键提取 👉"></textarea>
+
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <button id="aiParseBtn" class="btn-primary" style="flex: 1;">
+          🤖 AI智能解析
+        </button>
+        <button id="extractFromJobPage" class="btn-secondary" title="从当前打开的职位详情页提取">
+          📄 提取职位
+        </button>
+      </div>
+
+      <div id="parseStatus" class="parse-status" style="margin-top: 8px; display: none;">
+        <div class="loading-spinner"></div>
+        <span>正在解析...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 结构化配置模式 -->
+  <div class="config-mode" id="structuredMode" style="display: none;">
+    <!-- 基础要求 -->
+    <div class="config-section">
+      <h4>基础要求</h4>
+      <div class="form-grid">
+        <div class="input-group">
+          <label>最低学历</label>
+          <select id="educationLevel">
+            <option value="">不限</option>
+            <option value="高中">高中</option>
+            <option value="大专">大专</option>
+            <option value="本科">本科</option>
+            <option value="硕士">硕士</option>
+            <option value="博士">博士</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>最低工作年限</label>
+          <input type="number" id="minExperience" min="0" placeholder="年" style="width: 100%;">
+        </div>
+        <div class="input-group">
+          <label>薪资范围（月薪）</label>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="number" id="salaryMin" placeholder="最低" style="flex: 1;">
+            <span>-</span>
+            <input type="number" id="salaryMax" placeholder="最高" style="flex: 1;">
+            <span>元</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 必备技能 -->
+    <div class="config-section">
+      <h4>必备技能 <span style="font-size: 12px; color: #999;">(必须匹配)</span></h4>
+      <div id="requiredSkillsList" class="skills-list">
+        <!-- 动态生成技能标签 -->
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <input type="text" id="newRequiredSkill" placeholder="输入技能名称，如：PR、Python" style="flex: 1;">
+        <button id="addRequiredSkill" class="btn-secondary">添加</button>
+      </div>
+    </div>
+
+    <!-- 加分技能 -->
+    <div class="config-section">
+      <h4>加分技能 <span style="font-size: 12px; color: #999;">(有更好)</span></h4>
+      <div id="bonusSkillsList" class="skills-list">
+        <!-- 动态生成技能标签 -->
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <input type="text" id="newBonusSkill" placeholder="输入技能名称" style="flex: 1;">
+        <button id="addBonusSkill" class="btn-secondary">添加</button>
+      </div>
+    </div>
+
+    <!-- 排除关键词 -->
+    <div class="config-section">
+      <h4>排除关键词 <span style="font-size: 12px; color: #999;">(自动过滤)</span></h4>
+      <div id="excludeKeywordsList" class="skills-list">
+        <!-- 动态生成关键词标签 -->
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <input type="text" id="newExcludeKeyword" placeholder="如：兼职、实习" style="flex: 1;">
+        <button id="addExcludeKeyword" class="btn-secondary">添加</button>
+      </div>
+    </div>
+
+    <!-- 工作描述 -->
+    <div class="config-section">
+      <h4>工作内容描述 <span style="font-size: 12px; color: #999;">(用于生成招呼语)</span></h4>
+      <textarea id="jobDescription" rows="3" placeholder="简短描述工作内容，例如：负责短视频内容的拍摄、剪辑和运营工作"></textarea>
+    </div>
+  </div>
+
+  <!-- 保存按钮 -->
+  <div style="margin-top: 16px; display: flex; gap: 8px;">
+    <button id="saveJobConfig" class="btn-primary" style="flex: 1;">💾 保存配置</button>
+    <button id="testJobConfig" class="btn-secondary">🧪 测试匹配</button>
+  </div>
+
+  <!-- 导入/导出 -->
+  <div style="margin-top: 8px; display: flex; gap: 8px; font-size: 12px;">
+    <button id="exportConfigs" class="btn-text">📤 导出配置</button>
+    <button id="importConfigs" class="btn-text">📥 导入配置</button>
+  </div>
+</div>
+
+<style>
+  .badge-new {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: normal;
+    margin-left: 8px;
+  }
+
+  .job-selector {
+    margin-bottom: 16px;
+  }
+
+  .config-mode-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #f0f0f0;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #666;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+  }
+
+  .tab-btn:hover {
+    color: #667eea;
+    background: #f5f7fa;
+  }
+
+  .tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+    font-weight: bold;
+  }
+
+  .config-mode {
+    animation: fadeIn 0.3s;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .quick-parse-area {
+    padding: 16px;
+    background: #f5f7fa;
+    border-radius: 8px;
+  }
+
+  .parse-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: #fff3cd;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  .loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .config-section {
+    margin-bottom: 20px;
+    padding: 12px;
+    background: #fafafa;
+    border-radius: 6px;
+  }
+
+  .config-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px;
+    background: white;
+    border-radius: 4px;
+  }
+
+  .skill-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: #667eea;
+    color: white;
+    border-radius: 16px;
+    font-size: 13px;
+  }
+
+  .skill-tag.bonus {
+    background: #48bb78;
+  }
+
+  .skill-tag.exclude {
+    background: #f56565;
+  }
+
+  .skill-tag .remove-btn {
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+
+  .skill-tag .remove-btn:hover {
+    opacity: 1;
+  }
+
+  .btn-text {
+    background: none;
+    border: none;
+    color: #667eea;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+
+  .btn-text:hover {
+    text-decoration: underline;
+  }
+</style>
