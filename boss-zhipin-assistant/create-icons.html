@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>生成插件图标</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            margin: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Boss直聘智能助手 - 图标生成器</h1>
+    <p>点击按钮生成并下载PNG图标</p>
+
+    <div>
+        <canvas id="icon16" width="16" height="16"></canvas>
+        <canvas id="icon48" width="48" height="48"></canvas>
+        <canvas id="icon128" width="128" height="128"></canvas>
+    </div>
+
+    <div>
+        <button onclick="generateIcons()">生成图标</button>
+        <button onclick="downloadAll()">下载所有图标</button>
+    </div>
+
+    <script>
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+
+            // 背景渐变 (粉色到紫色)
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#ed64a6');
+            gradient.addColorStop(1, '#f093fb');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            // 圆角效果
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            const radius = size * 0.2;
+            ctx.moveTo(radius, 0);
+            ctx.lineTo(size - radius, 0);
+            ctx.quadraticCurveTo(size, 0, size, radius);
+            ctx.lineTo(size, size - radius);
+            ctx.quadraticCurveTo(size, size, size - radius, size);
+            ctx.lineTo(radius, size);
+            ctx.quadraticCurveTo(0, size, 0, size - radius);
+            ctx.lineTo(0, radius);
+            ctx.quadraticCurveTo(0, 0, radius, 0);
+            ctx.closePath();
+            ctx.fill();
+
+            // 重置混合模式
+            ctx.globalCompositeOperation = 'source-over';
+
+            // 绘制文字 "Boss"
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.35}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('B', size / 2, size / 2);
+
+            // 小图标 - 机器人符号
+            if (size >= 48) {
+                ctx.font = `${size * 0.25}px Arial`;
+                ctx.fillText('🤖', size / 2, size * 0.75);
+            }
+        }
+
+        function generateIcons() {
+            drawIcon(document.getElementById('icon16'), 16);
+            drawIcon(document.getElementById('icon48'), 48);
+            drawIcon(document.getElementById('icon128'), 128);
+            alert('图标已生成！点击"下载所有图标"按钮保存');
+        }
+
+        function downloadIcon(canvas, filename) {
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        function downloadAll() {
+            downloadIcon(document.getElementById('icon16'), 'icon16.png');
+            setTimeout(() => downloadIcon(document.getElementById('icon48'), 'icon48.png'), 200);
+            setTimeout(() => downloadIcon(document.getElementById('icon128'), 'icon128.png'), 400);
+            alert('图标下载完成！请将3个PNG文件移动到 icons/ 目录下');
+        }
+
+        // 页面加载时自动生成
+        window.onload = function() {
+            generateIcons();
+        };
+    </script>
+</body>
+</html>

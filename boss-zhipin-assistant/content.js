@@ -76,6 +76,18 @@
       const pageType = detectCurrentPage();
       console.log(`📍 当前页面类型: ${pageType}`);
 
+      // 🔍 启动F12调试信息捕获面板（2025-11-04新增）
+      // 这个面板会实时捕获所有console输出、错误、网络请求等信息
+      // 用户可以一键导出所有调试信息，方便反馈问题
+      try {
+        if (window.F12CapturePanel) {
+          window.f12CapturePanel = new F12CapturePanel();
+          console.log('🔍 F12调试信息捕获面板已启动');
+        }
+      } catch (error) {
+        console.error('F12捕获面板启动失败:', error);
+      }
+
       // 显示启动提示
       showWelcome();
 
