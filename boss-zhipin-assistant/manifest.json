@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Boss直聘智能助手",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AI驱动的招聘筛选与自动接待工具 - 支持安全模式和自动模式",
   "permissions": [
     "storage",
@@ -10,7 +10,8 @@
   ],
   "host_permissions": [
     "https://www.zhipin.com/*",
-    "https://generativelanguage.googleapis.com/*"
+    "https://generativelanguage.googleapis.com/*",
+    "https://open.bigmodel.cn/*"
   ],
   "background": {
     "service_worker": "background.js"

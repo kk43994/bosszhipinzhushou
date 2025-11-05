@@ -1186,68 +1186,35 @@ class DebugPanel {
   }
 
   /**
-   * 测试API
+   * 测试API连接
    */
   async testAPI() {
     try {
-      const config = await chrome.storage.local.get('config');
-      const apiKey = config.config?.apiKey;
+      const result = await chrome.storage.local.get('config');
+      const config = result.config || {};
 
-      if (!apiKey) {
-        this.log('未配置API密钥', 'error');
+      // ✅ 支持新的配置格式
+      const aiProvider = config.aiProvider || 'gemini';
+      const apiKey = aiProvider === 'gemini' ? config.geminiApiKey : config.zhipuApiKey;
+
+      // 向后兼容：如果新字段不存在，尝试读取旧字段
+      const legacyKey = config.apiKey;
+      const finalKey = apiKey || legacyKey;
+
+      if (!finalKey) {
+        const providerName = aiProvider === 'gemini' ? 'Gemini' : '智谱AI';
+        this.log(`未配置${providerName} API密钥，请在插件设置中配置`, 'error');
         return;
       }
 
-      this.log('正在测试Gemini API...', 'info');
+      const providerName = aiProvider === 'gemini' ? 'Gemini' : '智谱AI';
+      this.log(`开始测试${providerName} API连接...`, 'info');
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey  // Google官方推荐的Header方式
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: 'Hello' }] }],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 100,
-              topK: 40,
-              topP: 0.95
-            },
-            safetySettings: [
-              {
-                category: "HARM_CATEGORY_HARASSMENT",
-                threshold: "BLOCK_NONE"
-              },
-              {
-                category: "HARM_CATEGORY_HATE_SPEECH",
-                threshold: "BLOCK_NONE"
-              },
-              {
-                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                threshold: "BLOCK_NONE"
-              },
-              {
-                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                threshold: "BLOCK_NONE"
-              }
-            ]
-          })
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data && data.candidates && data.candidates[0]) {
-          this.log('✅ API连接成功', 'success');
-        } else {
-          this.log('⚠️ API连接成功但返回格式异常', 'warning');
-        }
+      // 根据提供商调用不同的API
+      if (aiProvider === 'gemini') {
+        await this.testGeminiAPI(finalKey);
       } else {
-        const errorText = await response.text();
-        this.log(`❌ API连接失败: ${response.status} - ${errorText}`, 'error');
+        await this.testZhipuAPI(finalKey);
       }
     } catch (error) {
       this.log(`❌ API测试异常: ${error.message}`, 'error');
@@ -1255,60 +1222,127 @@ class DebugPanel {
   }
 
   /**
-   * 提取候选人
+   * 测试Gemini API
    */
-  extractCandidates() {
-    if (window.recommendDashboard) {
-      const candidates = window.recommendDashboard.state.niurenList;
-      this.log(`提取到 ${candidates.length} 位牛人`, 'success');
-      console.table(candidates);
+  async testGeminiAPI(apiKey) {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: '测试连接' }] }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 100,
+            topK: 40,
+            topP: 0.95
+          },
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_ONLY_HIGH"
+            },
+            {
+              category: "HARM_CATEGORY_HATE_SPEECH",
+              threshold: "BLOCK_ONLY_HIGH"
+            },
+            {
+              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              threshold: "BLOCK_ONLY_HIGH"
+            },
+            {
+              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+              threshold: "BLOCK_ONLY_HIGH"
+            }
+          ]
+        })
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+        this.log('✅ Gemini API连接成功', 'success');
+        this.log(`返回内容: ${data.candidates[0].content.parts[0].text}`, 'info');
+      } else {
+        this.log('⚠️ Gemini API连接成功但返回格式异常', 'warning');
+        console.log('Gemini返回数据:', data);
+      }
     } else {
-      this.log('智能面板未加载', 'error');
+      const errorText = await response.text();
+      let errorMsg = `Gemini API调用失败 (${response.status})`;
+
+      if (response.status === 400) {
+        errorMsg = '请求参数错误，请检查API配置';
+      } else if (response.status === 401 || response.status === 403) {
+        errorMsg = 'API密钥无效或权限不足';
+      } else if (response.status === 429) {
+        errorMsg = 'API请求频率超限，请稍后重试';
+      } else if (response.status === 500) {
+        errorMsg = 'Gemini服务器错误，请稍后重试';
+      }
+
+      this.log(`❌ ${errorMsg}`, 'error');
+      if (errorText) {
+        console.error('Gemini API错误详情:', errorText);
+      }
     }
   }
 
   /**
-   * 清空缓存
+   * 测试智谱AI API
    */
-  async clearCache() {
-    try {
-      await chrome.storage.local.clear();
-      this.log('缓存已清空', 'success');
-    } catch (error) {
-      this.log(`清空缓存失败: ${error.message}`, 'error');
-    }
-  }
+  async testZhipuAPI(apiKey) {
+    const response = await fetch(
+      `https://open.bigmodel.cn/api/paas/v4/chat/completions`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'glm-4-flash',
+          messages: [
+            {
+              role: 'user',
+              content: '测试连接'
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 100
+        })
+      }
+    );
 
-  /**
-   * 测试评分
-   */
-  async testScoring() {
-    if (window.recommendScorer) {
-      this.log('评分模块已加载，请查看牛人卡片上的评分徽章', 'success');
+    if (response.ok) {
+      const data = await response.json();
+      if (data?.choices?.[0]?.message?.content) {
+        this.log('✅ 智谱AI API连接成功', 'success');
+        this.log(`返回内容: ${data.choices[0].message.content}`, 'info');
+      } else {
+        this.log('⚠️ 智谱AI API连接成功但返回格式异常', 'warning');
+        console.log('智谱AI返回数据:', data);
+      }
     } else {
-      this.log('评分模块未加载', 'error');
-    }
-  }
+      const errorText = await response.text();
+      let errorMsg = `智谱AI API调用失败 (${response.status})`;
 
-  /**
-   * 显示面板
-   */
-  showDashboard() {
-    if (window.recommendDashboard) {
-      window.recommendDashboard.showDashboard();
-      this.log('智能分析面板已显示', 'success');
-    } else {
-      this.log('智能面板未加载', 'error');
-    }
-  }
+      if (response.status === 401) {
+        errorMsg = 'API密钥无效或已过期';
+      } else if (response.status === 429) {
+        errorMsg = 'API请求频率超限，请稍后重试';
+      }
 
-  /**
-   * HTML转义
-   */
-  escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+      this.log(`❌ ${errorMsg}`, 'error');
+      if (errorText) {
+        console.error('智谱AI API错误详情:', errorText);
+      }
+    }
   }
 }
 
